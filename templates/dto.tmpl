@@ -1,0 +1,10 @@
+package usecase
+
+{{range .DTOs}}
+// {{.Name}} is a DTO auto-generated from the proto message
+type {{.Name}} struct {
+	{{- range .Fields}}
+	{{.Name}} {{.Type}}
+	{{- end}}
+}
+{{end}}

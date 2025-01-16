@@ -1,0 +1,25 @@
+package usecase
+
+import "context"
+
+{{range .Methods}}
+// {{.UseCaseName}} handles the business logic for {{.MethodName}}
+type {{.UseCaseName}} struct {}
+
+type {{.UseCaseDTO}} struct {
+	{{- range .RequestFields}}
+	{{.Name}} {{.Type}}
+	{{- end}}
+}
+
+type {{.ResponseDTO}} struct {
+	{{- range .ResponseFields}}
+	{{.Name}} {{.Type}}
+	{{- end}}
+}
+
+func (u *{{.UseCaseName}}) Run(ctx context.Context, request {{.UseCaseDTO}}) ({{.ResponseDTO}}, error) {
+	// Implement business logic here
+	return {{.ResponseDTO}}{}, nil
+}
+{{end}}

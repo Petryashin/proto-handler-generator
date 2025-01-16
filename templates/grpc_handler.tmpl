@@ -1,0 +1,37 @@
+package handler
+
+import (
+	"context"
+	"{{.GoPackage}}/generated/usecase"
+	"{{$.ProtoPackage}}"
+)
+
+type GRPCHandler struct {
+	{{$.ProtoPackage}}.{{.ServiceName}}Server
+
+	{{- range .Methods}}
+	{{.UseCaseName}} *usecase.{{.UseCaseName}}
+	{{- end}}
+}
+
+{{range .Methods}}
+// {{.MethodName}} handles gRPC request for {{.MethodName}}
+func (h *GRPCHandler) {{.MethodName}}(ctx context.Context, req *{{$.ProtoPackage}}.{{.RequestType}}) (*{{$.ProtoPackage}}.{{.ResponseType}}, error) {
+	dto := usecase.{{.UseCaseDTO}}{
+		{{- range .RequestFields}}
+		{{.Name}}: req.{{.Name}},
+		{{- end}}
+	}
+
+	response, err := h.{{.UseCaseName}}.Run(ctx, dto)
+	if err != nil {
+		return nil, err
+	}
+
+	return &{{$.ProtoPackage}}.{{.ResponseType}}{
+		{{- range .ResponseFields}}
+		{{.Name}}: response.{{.Name}},
+		{{- end}}
+	}, nil
+}
+{{end}}

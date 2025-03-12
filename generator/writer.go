@@ -8,7 +8,13 @@ import (
 	"proto-handler-generator/parser"
 )
 
-func writeToFile(outputPath string, service *parser.Common, handlerCode, useCaseCode, dtoCode string) error {
+func writeToFile(
+	outputPath string,
+	service *parser.Common,
+	handlerCode string,
+	useCaseCodes []string,
+	dtoCode string,
+) error {
 	handlerDir := filepath.Join(outputPath, "handler")
 	usecaseDir := filepath.Join(outputPath, "usecase")
 	dtoDir := filepath.Join(outputPath, "dto")
@@ -27,17 +33,21 @@ func writeToFile(outputPath string, service *parser.Common, handlerCode, useCase
 	}
 
 	handlerFileName := fmt.Sprintf("%s_handler.go", snakeCase(service.Name))
-	usecaseFileName := fmt.Sprintf("%s_usecase.go", snakeCase(service.Name))
 	dtoFileName := fmt.Sprintf("%s_dto.go", snakeCase(service.Name))
 
 	err = os.WriteFile(filepath.Join(handlerDir, handlerFileName), []byte(handlerCode), os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("failed to write handler file: %w", err)
 	}
-	err = os.WriteFile(filepath.Join(usecaseDir, usecaseFileName), []byte(useCaseCode), os.ModePerm)
-	if err != nil {
-		return fmt.Errorf("failed to write usecase file: %w", err)
+
+	for i, useCaseCode := range useCaseCodes {
+		usecaseFileName := fmt.Sprintf("%s_%d_usecase.go", snakeCase(service.Name), i)
+		err = os.WriteFile(filepath.Join(usecaseDir, usecaseFileName), []byte(useCaseCode), os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("failed to write usecase file: %w", err)
+		}
 	}
+
 	err = os.WriteFile(filepath.Join(dtoDir, dtoFileName), []byte(dtoCode), os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("failed to write dto file: %w", err)

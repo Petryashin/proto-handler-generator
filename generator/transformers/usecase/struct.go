@@ -17,3 +17,12 @@ type UseCaseMethod struct {
 type UseCaseTemplateData struct {
 	Methods []UseCaseMethod
 }
+
+type GeneratedTemplate struct {
+	Name     string
+	Template string
+}
+
+type UseCaseResultData struct {
+	GeneratedTemplates []GeneratedTemplate
+}

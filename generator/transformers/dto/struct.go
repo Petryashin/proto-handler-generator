@@ -13,3 +13,8 @@ type DTO struct {
 type DTOTemplateData struct {
 	DTOs []DTO
 }
+
+type DTOResultData struct {
+	Name              string
+	GeneratedTemplate string
+}

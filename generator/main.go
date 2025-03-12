@@ -33,8 +33,14 @@ func GenerateCode(protoPath, outputPath string) error {
 	if err != nil {
 		return fmt.Errorf("error generating handler code: %w", err)
 	}
+	handlerFileName := fmt.Sprintf("%s_handler.go", camelToSnakeCase(common.Name))
 
-	var useCaseCodes []string
+	handlerRes := handler.HandlerResultData{
+		Name:              handlerFileName,
+		GeneratedTemplate: handlerCode,
+	}
+
+	var useCaseRes usecase.UseCaseResultData
 	transformer2 := usecase.TransformToUseCaseTemplate(common)
 
 	for _, method := range transformer2.Methods {
@@ -42,7 +48,13 @@ func GenerateCode(protoPath, outputPath string) error {
 		if err != nil {
 			return fmt.Errorf("error generating usecase code: %w", err)
 		}
-		useCaseCodes = append(useCaseCodes, useCaseCode)
+		useCaseFileName := fmt.Sprintf("%s_usecase.go", camelToSnakeCase(method.MethodName))
+
+		useCaseRes.GeneratedTemplates = append(
+			useCaseRes.GeneratedTemplates, usecase.GeneratedTemplate{
+				Name:     useCaseFileName,
+				Template: useCaseCode,
+			})
 	}
 
 	transformer3 := dto.TransformToDTOTemplate(common)
@@ -51,8 +63,14 @@ func GenerateCode(protoPath, outputPath string) error {
 	if err != nil {
 		return fmt.Errorf("error generating DTO code: %w", err)
 	}
+	dtoFileName := fmt.Sprintf("%s_dto.go", camelToSnakeCase(common.Name))
 
-	err = writeToFile(outputPath, common, handlerCode, useCaseCodes, dtoCode)
+	dtoRes := dto.DTOResultData{
+		Name:              dtoFileName,
+		GeneratedTemplate: dtoCode,
+	}
+
+	err = writeToFile(outputPath, common, handlerRes, useCaseRes, dtoRes)
 	if err != nil {
 		return fmt.Errorf("error writing generated files: %w", err)
 	}

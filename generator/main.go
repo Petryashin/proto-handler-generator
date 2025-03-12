@@ -34,10 +34,15 @@ func GenerateCode(protoPath, outputPath string) error {
 		return fmt.Errorf("error generating handler code: %w", err)
 	}
 
+	var useCaseCodes []string
 	transformer2 := usecase.TransformToUseCaseTemplate(common)
-	useCaseCode, err := generateCode(usecaseTemplate, transformer2)
-	if err != nil {
-		return fmt.Errorf("error generating usecase code: %w", err)
+
+	for _, method := range transformer2.Methods {
+		useCaseCode, err := generateCode(usecaseTemplate, method)
+		if err != nil {
+			return fmt.Errorf("error generating usecase code: %w", err)
+		}
+		useCaseCodes = append(useCaseCodes, useCaseCode)
 	}
 
 	transformer3 := dto.TransformToDTOTemplate(common)
@@ -47,7 +52,7 @@ func GenerateCode(protoPath, outputPath string) error {
 		return fmt.Errorf("error generating DTO code: %w", err)
 	}
 
-	err = writeToFile(outputPath, common, handlerCode, useCaseCode, dtoCode)
+	err = writeToFile(outputPath, common, handlerCode, useCaseCodes, dtoCode)
 	if err != nil {
 		return fmt.Errorf("error writing generated files: %w", err)
 	}

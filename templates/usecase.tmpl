@@ -2,7 +2,6 @@ package usecase
 
 import "context"
 
-{{range .Methods}}
 // {{.UseCaseName}} handles the business logic for {{.MethodName}}
 type {{.UseCaseName}} struct {}
 
@@ -22,4 +21,3 @@ func (u *{{.UseCaseName}}) Run(ctx context.Context, request {{.UseCaseDTO}}) ({{
 	// Implement business logic here
 	return {{.ResponseDTO}}{}, nil
 }
-{{end}}

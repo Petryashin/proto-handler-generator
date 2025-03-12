@@ -21,3 +21,8 @@ type Field struct {
 	Name string
 	Type string
 }
+
+type HandlerResultData struct {
+	Name              string
+	GeneratedTemplate string
+}

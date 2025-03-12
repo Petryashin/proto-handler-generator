@@ -4,16 +4,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"unicode"
 
+	"proto-handler-generator/generator/transformers/dto"
+	"proto-handler-generator/generator/transformers/handler"
+	"proto-handler-generator/generator/transformers/usecase"
 	"proto-handler-generator/parser"
 )
 
 func writeToFile(
 	outputPath string,
 	service *parser.Common,
-	handlerCode string,
-	useCaseCodes []string,
-	dtoCode string,
+	handler handler.HandlerResultData,
+	useCase usecase.UseCaseResultData,
+	dto dto.DTOResultData,
 ) error {
 	handlerDir := filepath.Join(outputPath, "handler")
 	usecaseDir := filepath.Join(outputPath, "usecase")
@@ -32,23 +36,19 @@ func writeToFile(
 		return fmt.Errorf("failed to create dto directory: %w", err)
 	}
 
-	handlerFileName := fmt.Sprintf("%s_handler.go", snakeCase(service.Name))
-	dtoFileName := fmt.Sprintf("%s_dto.go", snakeCase(service.Name))
-
-	err = os.WriteFile(filepath.Join(handlerDir, handlerFileName), []byte(handlerCode), os.ModePerm)
+	err = os.WriteFile(filepath.Join(handlerDir, handler.Name), []byte(handler.GeneratedTemplate), os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("failed to write handler file: %w", err)
 	}
 
-	for i, useCaseCode := range useCaseCodes {
-		usecaseFileName := fmt.Sprintf("%s_%d_usecase.go", snakeCase(service.Name), i)
-		err = os.WriteFile(filepath.Join(usecaseDir, usecaseFileName), []byte(useCaseCode), os.ModePerm)
+	for _, useCaseCode := range useCase.GeneratedTemplates {
+		err = os.WriteFile(filepath.Join(usecaseDir, useCaseCode.Name), []byte(useCaseCode.Template), os.ModePerm)
 		if err != nil {
 			return fmt.Errorf("failed to write usecase file: %w", err)
 		}
 	}
 
-	err = os.WriteFile(filepath.Join(dtoDir, dtoFileName), []byte(dtoCode), os.ModePerm)
+	err = os.WriteFile(filepath.Join(dtoDir, dto.Name), []byte(dto.GeneratedTemplate), os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("failed to write dto file: %w", err)
 	}
@@ -56,13 +56,13 @@ func writeToFile(
 	return nil
 }
 
-func snakeCase(input string) string {
+func camelToSnakeCase(input string) string {
 	var result []rune
 	for i, r := range input {
-		if i > 0 && r >= 'A' && r <= 'Z' {
+		if i > 0 && unicode.IsUpper(r) {
 			result = append(result, '_')
 		}
-		result = append(result, r)
+		result = append(result, unicode.ToLower(r))
 	}
 	return string(result)
 }
